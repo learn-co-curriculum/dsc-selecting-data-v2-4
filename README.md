@@ -1,4 +1,4 @@
-# Selecting Data
+# Selecting Data with SQL
 
 ## Introduction
 
@@ -8,8 +8,9 @@ As a data scientist, the SQL query you'll likely use most often is `SELECT`. Thi
 
 You will be able to:
 - Retrieve a subset of columns from a table
+- Create an alias in a SQL query
+- Use SQL CASE statements to transform selected columns
 - Use built-in SQL functions to transform selected columns
-- Retrieve a subset of records from a table using a basic `WHERE` clause
 
 ## The Data
 
@@ -787,7 +788,7 @@ SELECT firstName, lastName
 
 
 
-Additionally, we can use aliases (`AS` keyword) to change the column names in our query result:
+Additionally, we can use **aliases** (`AS` keyword) to change the column names in our query result:
 
 
 ```python
@@ -841,6 +842,386 @@ SELECT firstName AS name
     <tr>
       <th>4</th>
       <td>Gerard</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+## Using SQL `CASE` Statements
+
+`CASE` statements appear very frequently in SQL technical interview questions. They are a type of conditional statement, similar to `if` statements in Python. Whereas Python uses the keywords `if`, `elif`, and `else`, SQL uses `CASE`, `WHEN`, `THEN`, `ELSE`, and `END`.
+
+`CASE` indicates that a conditional statement has begun, and `END` indicates that it has ended.
+
+`WHEN` is similar to `if`, and then instead of a colon and an indented block, `THEN` indicates what should happen if the condition is true. After the first `THEN` has executed, it skips to the end, so each subsequent `WHEN` is more like `elif` in Python.
+
+`ELSE` is essentially the same as `else` in Python.
+
+### `CASE` to Bin Column Values
+
+One of the most common use cases for `CASE` statements is to bin the column values. This is true for both numeric and categorical columns.
+
+In the example below, we use the `jobTitle` field to bin all employees into `role` categories based on whether or not their job title is "Sales Rep":
+
+
+```python
+pd.read_sql("""
+SELECT firstName, lastName, jobTitle,
+       CASE
+       WHEN jobTitle = "Sales Rep" THEN "Sales Rep"
+       ELSE "Not Sales Rep"
+       END AS role
+  FROM employees;
+""", conn).head(10)
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>firstName</th>
+      <th>lastName</th>
+      <th>jobTitle</th>
+      <th>role</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Diane</td>
+      <td>Murphy</td>
+      <td>President</td>
+      <td>Not Sales Rep</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Mary</td>
+      <td>Patterson</td>
+      <td>VP Sales</td>
+      <td>Not Sales Rep</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Jeff</td>
+      <td>Firrelli</td>
+      <td>VP Marketing</td>
+      <td>Not Sales Rep</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>William</td>
+      <td>Patterson</td>
+      <td>Sales Manager (APAC)</td>
+      <td>Not Sales Rep</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Gerard</td>
+      <td>Bondur</td>
+      <td>Sale Manager (EMEA)</td>
+      <td>Not Sales Rep</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Anthony</td>
+      <td>Bow</td>
+      <td>Sales Manager (NA)</td>
+      <td>Not Sales Rep</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Leslie</td>
+      <td>Jennings</td>
+      <td>Sales Rep</td>
+      <td>Sales Rep</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Leslie</td>
+      <td>Thompson</td>
+      <td>Sales Rep</td>
+      <td>Sales Rep</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Julie</td>
+      <td>Firrelli</td>
+      <td>Sales Rep</td>
+      <td>Sales Rep</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Steve</td>
+      <td>Patterson</td>
+      <td>Sales Rep</td>
+      <td>Sales Rep</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+### `CASE`  to Make Values Human-Readable
+
+Another typical way to use `CASE` is to translate the column values into something that your eventual audience will understand. This is especially true of data that is entered into the database as a "code" or "ID" rather than a human-readable name.
+
+In the example below, we use a `CASE` statement with multiple `WHEN`s in order to transform the `officeCode` column into an `office` column that uses a more meaningful name for the office:
+
+
+```python
+pd.read_sql("""
+SELECT firstName, lastName, officeCode,
+       CASE
+       WHEN officeCode = "1" THEN "San Francisco, CA"
+       WHEN officeCode = "2" THEN "Boston, MA"
+       WHEN officeCode = "3" THEN "New York, NY"
+       WHEN officeCode = "4" THEN "Paris, France"
+       WHEN officeCode = "5" THEN "Tokyo, Japan"
+       END AS office
+  FROM employees;
+""", conn).head(10)
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>firstName</th>
+      <th>lastName</th>
+      <th>officeCode</th>
+      <th>office</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Diane</td>
+      <td>Murphy</td>
+      <td>1</td>
+      <td>San Francisco, CA</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Mary</td>
+      <td>Patterson</td>
+      <td>1</td>
+      <td>San Francisco, CA</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Jeff</td>
+      <td>Firrelli</td>
+      <td>1</td>
+      <td>San Francisco, CA</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>William</td>
+      <td>Patterson</td>
+      <td>6</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Gerard</td>
+      <td>Bondur</td>
+      <td>4</td>
+      <td>Paris, France</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Anthony</td>
+      <td>Bow</td>
+      <td>1</td>
+      <td>San Francisco, CA</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Leslie</td>
+      <td>Jennings</td>
+      <td>1</td>
+      <td>San Francisco, CA</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Leslie</td>
+      <td>Thompson</td>
+      <td>1</td>
+      <td>San Francisco, CA</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Julie</td>
+      <td>Firrelli</td>
+      <td>2</td>
+      <td>Boston, MA</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Steve</td>
+      <td>Patterson</td>
+      <td>2</td>
+      <td>Boston, MA</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+Note that because **we did not specify a name for `officeCode` "6"**, and did not include an `ELSE`, the associated office value for William Patterson is `NULL` (represented as `None` in Python).
+
+There is also a shorter syntax possible if all of the `WHEN`s are just checking if a value is equal to another value (e.g. in this case where we are repeating `officeCode =` over and over). Instead we can specify `officeCode` right after `CASE`, then only specify the potential matching values:
+
+
+```python
+pd.read_sql("""
+SELECT firstName, lastName, officeCode,
+       CASE officeCode
+       WHEN "1" THEN "San Francisco, CA"
+       WHEN "2" THEN "Boston, MA"
+       WHEN "3" THEN "New York, NY"
+       WHEN "4" THEN "Paris, France"
+       WHEN "5" THEN "Tokyo, Japan"
+       END AS office
+  FROM employees;
+""", conn).head(10)
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>firstName</th>
+      <th>lastName</th>
+      <th>officeCode</th>
+      <th>office</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Diane</td>
+      <td>Murphy</td>
+      <td>1</td>
+      <td>San Francisco, CA</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Mary</td>
+      <td>Patterson</td>
+      <td>1</td>
+      <td>San Francisco, CA</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Jeff</td>
+      <td>Firrelli</td>
+      <td>1</td>
+      <td>San Francisco, CA</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>William</td>
+      <td>Patterson</td>
+      <td>6</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Gerard</td>
+      <td>Bondur</td>
+      <td>4</td>
+      <td>Paris, France</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Anthony</td>
+      <td>Bow</td>
+      <td>1</td>
+      <td>San Francisco, CA</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Leslie</td>
+      <td>Jennings</td>
+      <td>1</td>
+      <td>San Francisco, CA</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Leslie</td>
+      <td>Thompson</td>
+      <td>1</td>
+      <td>San Francisco, CA</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Julie</td>
+      <td>Firrelli</td>
+      <td>2</td>
+      <td>Boston, MA</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Steve</td>
+      <td>Patterson</td>
+      <td>2</td>
+      <td>Boston, MA</td>
     </tr>
   </tbody>
 </table>
@@ -2134,801 +2515,6 @@ SELECT orderDate,
   </tbody>
 </table>
 <p>326 rows × 4 columns</p>
-</div>
-
-
-
-## Introduction to the `WHERE` Clause
-
-With just a `SELECT` expression, we can specify which **columns** we want to select, as well as transform the column values using aliases, built-in functions, and other expressions.
-
-However if we want to filter the **rows** that we want to select, we also need to include a `WHERE` clause. Below are a few examples of the `SELECT` queries from above, with `WHERE` clauses added.
-
-### Selecting Employees Based on String Conditions
-
-If we wanted to select all employees with 5 letters in their first name, that would look like this:
-
-
-```python
-pd.read_sql("""
-SELECT *, length(firstName) AS name_length
-  FROM employees
- WHERE name_length = 5;
-""", conn)
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>employeeNumber</th>
-      <th>lastName</th>
-      <th>firstName</th>
-      <th>extension</th>
-      <th>email</th>
-      <th>officeCode</th>
-      <th>reportsTo</th>
-      <th>jobTitle</th>
-      <th>name_length</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>1002</td>
-      <td>Murphy</td>
-      <td>Diane</td>
-      <td>x5800</td>
-      <td>dmurphy@classicmodelcars.com</td>
-      <td>1</td>
-      <td></td>
-      <td>President</td>
-      <td>5</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1188</td>
-      <td>Firrelli</td>
-      <td>Julie</td>
-      <td>x2173</td>
-      <td>jfirrelli@classicmodelcars.com</td>
-      <td>2</td>
-      <td>1143</td>
-      <td>Sales Rep</td>
-      <td>5</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>1216</td>
-      <td>Patterson</td>
-      <td>Steve</td>
-      <td>x4334</td>
-      <td>spatterson@classicmodelcars.com</td>
-      <td>2</td>
-      <td>1143</td>
-      <td>Sales Rep</td>
-      <td>5</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>1501</td>
-      <td>Bott</td>
-      <td>Larry</td>
-      <td>x2311</td>
-      <td>lbott@classicmodelcars.com</td>
-      <td>7</td>
-      <td>1102</td>
-      <td>Sales Rep</td>
-      <td>5</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>1504</td>
-      <td>Jones</td>
-      <td>Barry</td>
-      <td>x102</td>
-      <td>bjones@classicmodelcars.com</td>
-      <td>7</td>
-      <td>1102</td>
-      <td>Sales Rep</td>
-      <td>5</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>1612</td>
-      <td>Marsh</td>
-      <td>Peter</td>
-      <td>x102</td>
-      <td>pmarsh@classicmodelcars.com</td>
-      <td>6</td>
-      <td>1088</td>
-      <td>Sales Rep</td>
-      <td>5</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-Or, to select all employees with the first initial of "L.", that would look like this:
-
-
-```python
-pd.read_sql("""
-SELECT *, substr(firstName, 1, 1) AS first_initial
-  FROM employees
- WHERE first_initial = "L";
-""", conn)
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>employeeNumber</th>
-      <th>lastName</th>
-      <th>firstName</th>
-      <th>extension</th>
-      <th>email</th>
-      <th>officeCode</th>
-      <th>reportsTo</th>
-      <th>jobTitle</th>
-      <th>first_initial</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>1165</td>
-      <td>Jennings</td>
-      <td>Leslie</td>
-      <td>x3291</td>
-      <td>ljennings@classicmodelcars.com</td>
-      <td>1</td>
-      <td>1143</td>
-      <td>Sales Rep</td>
-      <td>L</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1166</td>
-      <td>Thompson</td>
-      <td>Leslie</td>
-      <td>x4065</td>
-      <td>lthompson@classicmodelcars.com</td>
-      <td>1</td>
-      <td>1143</td>
-      <td>Sales Rep</td>
-      <td>L</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>1337</td>
-      <td>Bondur</td>
-      <td>Loui</td>
-      <td>x6493</td>
-      <td>lbondur@classicmodelcars.com</td>
-      <td>4</td>
-      <td>1102</td>
-      <td>Sales Rep</td>
-      <td>L</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>1501</td>
-      <td>Bott</td>
-      <td>Larry</td>
-      <td>x2311</td>
-      <td>lbott@classicmodelcars.com</td>
-      <td>7</td>
-      <td>1102</td>
-      <td>Sales Rep</td>
-      <td>L</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-**Important note:** Just like in Python, you can compare numbers in SQL just by typing the number (e.g. `name_length = 5`) but if you want to compare to a string value, you need to surround the value with quotes (e.g. `first_initial = "L"`). If you forget the quotes, you will get an error, because SQL will interpret it as a variable name rather than a hard-coded value:
-
-
-```python
-pd.read_sql("""
-SELECT *, substr(firstName, 1, 1) AS first_initial
-  FROM employees
- WHERE first_initial = L;
-""", conn)
-```
-
-
-    ---------------------------------------------------------------------------
-
-    OperationalError                          Traceback (most recent call last)
-
-    //anaconda3/envs/python3/lib/python3.9/site-packages/pandas/io/sql.py in execute(self, *args, **kwargs)
-       2055         try:
-    -> 2056             cur.execute(*args, **kwargs)
-       2057             return cur
-
-
-    OperationalError: no such column: L
-
-    
-    The above exception was the direct cause of the following exception:
-
-
-    DatabaseError                             Traceback (most recent call last)
-
-    /var/folders/bs/vx0h72xd2nq558ct7chx0mw00000gp/T/ipykernel_14874/2492926221.py in <module>
-    ----> 1 pd.read_sql("""
-          2 SELECT *, substr(firstName, 1, 1) AS first_initial
-          3   FROM employees
-          4  WHERE first_initial = L;
-          5 """, conn)
-
-
-    //anaconda3/envs/python3/lib/python3.9/site-packages/pandas/io/sql.py in read_sql(sql, con, index_col, coerce_float, params, parse_dates, columns, chunksize)
-        600 
-        601     if isinstance(pandas_sql, SQLiteDatabase):
-    --> 602         return pandas_sql.read_query(
-        603             sql,
-        604             index_col=index_col,
-
-
-    //anaconda3/envs/python3/lib/python3.9/site-packages/pandas/io/sql.py in read_query(self, sql, index_col, coerce_float, params, parse_dates, chunksize, dtype)
-       2114 
-       2115         args = _convert_params(sql, params)
-    -> 2116         cursor = self.execute(*args)
-       2117         columns = [col_desc[0] for col_desc in cursor.description]
-       2118 
-
-
-    //anaconda3/envs/python3/lib/python3.9/site-packages/pandas/io/sql.py in execute(self, *args, **kwargs)
-       2066 
-       2067             ex = DatabaseError(f"Execution failed on sql '{args[0]}': {exc}")
-    -> 2068             raise ex from exc
-       2069 
-       2070     @staticmethod
-
-
-    DatabaseError: Execution failed on sql '
-    SELECT *, substr(firstName, 1, 1) AS first_initial
-      FROM employees
-     WHERE first_initial = L;
-    ': no such column: L
-
-
-### Selecting Order Details Based on Price
-
-Below we select all order details where the price each, rounded to the nearest integer, is 30 dollars:
-
-
-```python
-pd.read_sql("""
-SELECT *, CAST(round(priceEach) AS INTEGER) AS rounded_price_int
-  FROM orderDetails
- WHERE rounded_price_int = 30;
-""", conn)
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>orderNumber</th>
-      <th>productCode</th>
-      <th>quantityOrdered</th>
-      <th>priceEach</th>
-      <th>orderLineNumber</th>
-      <th>rounded_price_int</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>10104</td>
-      <td>S24_2840</td>
-      <td>44</td>
-      <td>30.41</td>
-      <td>10</td>
-      <td>30</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>10173</td>
-      <td>S24_1937</td>
-      <td>31</td>
-      <td>29.87</td>
-      <td>9</td>
-      <td>30</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>10184</td>
-      <td>S24_2840</td>
-      <td>42</td>
-      <td>30.06</td>
-      <td>7</td>
-      <td>30</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>10280</td>
-      <td>S24_1937</td>
-      <td>20</td>
-      <td>29.87</td>
-      <td>12</td>
-      <td>30</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>10332</td>
-      <td>S24_1937</td>
-      <td>45</td>
-      <td>29.87</td>
-      <td>6</td>
-      <td>30</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>10367</td>
-      <td>S24_1937</td>
-      <td>23</td>
-      <td>29.54</td>
-      <td>13</td>
-      <td>30</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>10380</td>
-      <td>S24_1937</td>
-      <td>32</td>
-      <td>29.87</td>
-      <td>4</td>
-      <td>30</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-### Selecting Orders Based on Date
-
-We can use the `strftime` function to select all orders placed in January of any year:
-
-
-```python
-pd.read_sql("""
-SELECT *, strftime("%m", orderDate) AS month
-  FROM orders
- WHERE month = "01";
-""", conn)
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>orderNumber</th>
-      <th>orderDate</th>
-      <th>requiredDate</th>
-      <th>shippedDate</th>
-      <th>status</th>
-      <th>comments</th>
-      <th>customerNumber</th>
-      <th>month</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>10100</td>
-      <td>2003-01-06</td>
-      <td>2003-01-13</td>
-      <td>2003-01-10</td>
-      <td>Shipped</td>
-      <td></td>
-      <td>363</td>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>10101</td>
-      <td>2003-01-09</td>
-      <td>2003-01-18</td>
-      <td>2003-01-11</td>
-      <td>Shipped</td>
-      <td>Check on availability.</td>
-      <td>128</td>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>10102</td>
-      <td>2003-01-10</td>
-      <td>2003-01-18</td>
-      <td>2003-01-14</td>
-      <td>Shipped</td>
-      <td></td>
-      <td>181</td>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>10103</td>
-      <td>2003-01-29</td>
-      <td>2003-02-07</td>
-      <td>2003-02-02</td>
-      <td>Shipped</td>
-      <td></td>
-      <td>121</td>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>10104</td>
-      <td>2003-01-31</td>
-      <td>2003-02-09</td>
-      <td>2003-02-01</td>
-      <td>Shipped</td>
-      <td></td>
-      <td>141</td>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>10208</td>
-      <td>2004-01-02</td>
-      <td>2004-01-11</td>
-      <td>2004-01-04</td>
-      <td>Shipped</td>
-      <td></td>
-      <td>146</td>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>10209</td>
-      <td>2004-01-09</td>
-      <td>2004-01-15</td>
-      <td>2004-01-12</td>
-      <td>Shipped</td>
-      <td></td>
-      <td>347</td>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>10210</td>
-      <td>2004-01-12</td>
-      <td>2004-01-22</td>
-      <td>2004-01-20</td>
-      <td>Shipped</td>
-      <td></td>
-      <td>177</td>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>10211</td>
-      <td>2004-01-15</td>
-      <td>2004-01-25</td>
-      <td>2004-01-18</td>
-      <td>Shipped</td>
-      <td></td>
-      <td>406</td>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>10212</td>
-      <td>2004-01-16</td>
-      <td>2004-01-24</td>
-      <td>2004-01-18</td>
-      <td>Shipped</td>
-      <td></td>
-      <td>141</td>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>10</th>
-      <td>10213</td>
-      <td>2004-01-22</td>
-      <td>2004-01-28</td>
-      <td>2004-01-27</td>
-      <td>Shipped</td>
-      <td>Difficult to negotiate with customer. We need ...</td>
-      <td>489</td>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>11</th>
-      <td>10214</td>
-      <td>2004-01-26</td>
-      <td>2004-02-04</td>
-      <td>2004-01-29</td>
-      <td>Shipped</td>
-      <td></td>
-      <td>458</td>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>12</th>
-      <td>10215</td>
-      <td>2004-01-29</td>
-      <td>2004-02-08</td>
-      <td>2004-02-01</td>
-      <td>Shipped</td>
-      <td>Customer requested that FedEx Ground is used f...</td>
-      <td>475</td>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>13</th>
-      <td>10362</td>
-      <td>2005-01-05</td>
-      <td>2005-01-16</td>
-      <td>2005-01-10</td>
-      <td>Shipped</td>
-      <td></td>
-      <td>161</td>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>14</th>
-      <td>10363</td>
-      <td>2005-01-06</td>
-      <td>2005-01-12</td>
-      <td>2005-01-10</td>
-      <td>Shipped</td>
-      <td></td>
-      <td>334</td>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>15</th>
-      <td>10364</td>
-      <td>2005-01-06</td>
-      <td>2005-01-17</td>
-      <td>2005-01-09</td>
-      <td>Shipped</td>
-      <td></td>
-      <td>350</td>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>16</th>
-      <td>10365</td>
-      <td>2005-01-07</td>
-      <td>2005-01-18</td>
-      <td>2005-01-11</td>
-      <td>Shipped</td>
-      <td></td>
-      <td>320</td>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>17</th>
-      <td>10366</td>
-      <td>2005-01-10</td>
-      <td>2005-01-19</td>
-      <td>2005-01-12</td>
-      <td>Shipped</td>
-      <td></td>
-      <td>381</td>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>18</th>
-      <td>10367</td>
-      <td>2005-01-12</td>
-      <td>2005-01-21</td>
-      <td>2005-01-16</td>
-      <td>Resolved</td>
-      <td>This order was disputed and resolved on 2/1/20...</td>
-      <td>205</td>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>19</th>
-      <td>10368</td>
-      <td>2005-01-19</td>
-      <td>2005-01-27</td>
-      <td>2005-01-24</td>
-      <td>Shipped</td>
-      <td>Can we renegotiate this one?</td>
-      <td>124</td>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>20</th>
-      <td>10369</td>
-      <td>2005-01-20</td>
-      <td>2005-01-28</td>
-      <td>2005-01-24</td>
-      <td>Shipped</td>
-      <td></td>
-      <td>379</td>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>21</th>
-      <td>10370</td>
-      <td>2005-01-20</td>
-      <td>2005-02-01</td>
-      <td>2005-01-25</td>
-      <td>Shipped</td>
-      <td></td>
-      <td>276</td>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>22</th>
-      <td>10371</td>
-      <td>2005-01-23</td>
-      <td>2005-02-03</td>
-      <td>2005-01-25</td>
-      <td>Shipped</td>
-      <td></td>
-      <td>124</td>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>23</th>
-      <td>10372</td>
-      <td>2005-01-26</td>
-      <td>2005-02-05</td>
-      <td>2005-01-28</td>
-      <td>Shipped</td>
-      <td></td>
-      <td>398</td>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>24</th>
-      <td>10373</td>
-      <td>2005-01-31</td>
-      <td>2005-02-08</td>
-      <td>2005-02-06</td>
-      <td>Shipped</td>
-      <td></td>
-      <td>311</td>
-      <td>01</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-We can also check to see if any orders were shipped late (`shippedDate` after `requiredDate`, i.e. the number of days late is a positive number):
-
-
-```python
-pd.read_sql("""
-SELECT *, julianday(shippedDate) - julianday(requiredDate) AS days_late
-  FROM orders
- WHERE sign(days_late) = +1;
-""", conn)
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>orderNumber</th>
-      <th>orderDate</th>
-      <th>requiredDate</th>
-      <th>shippedDate</th>
-      <th>status</th>
-      <th>comments</th>
-      <th>customerNumber</th>
-      <th>days_late</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>10165</td>
-      <td>2003-10-22</td>
-      <td>2003-10-31</td>
-      <td>2003-12-26</td>
-      <td>Shipped</td>
-      <td>This order was on hold because customers's cre...</td>
-      <td>148</td>
-      <td>56.0</td>
-    </tr>
-  </tbody>
-</table>
 </div>
 
 
