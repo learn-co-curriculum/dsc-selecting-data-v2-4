@@ -22,7 +22,7 @@ import sqlite3
 conn = sqlite3.connect('data.sqlite')
 ```
 
-The database that you've just connected to is the same database you have seen previously, containing data about orders, employeers, etc. Here's an overview of the database:  
+The database that you've just connected to is the same database you have seen previously, containing data about orders, employees, etc. Here's an overview of the database:  
 
 <img src="images/Database-Schema.png">
 
@@ -2296,7 +2296,7 @@ SELECT julianday(requiredDate) - julianday(orderDate) AS days_from_order_to_requ
 
 
 
-If we wanted to select the dates order dates as well as 1 week after the order dates, that would look like this:
+If we wanted to select the order dates as well as dates 1 week after the order dates, that would look like this:
 
 
 ```python
@@ -2394,7 +2394,7 @@ SELECT orderDate, date(orderDate, "+7 days") AS one_week_later
 
 
 
-You can also use the `strftime` function, which is very similar to the [Python version](https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior). This is useful if you want to split apart a date or time value into different sub-parts. For example, here we extract the year, month, and day of month:
+You can also use the `strftime` function, which is very similar to the [Python version](https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior). This is useful if you want to split apart a date or time value into different sub-parts. For example, here we extract the year, month, and day of month from the order date:
 
 
 ```python
@@ -2528,4 +2528,4 @@ conn.close()
 
 ## Summary
 
-In this lesson, you saw how to execute SQL `SELECT` queries, specifying which columns to be selected as well as transforming the columns using string, numeric, and date/time built-in functions and expressions. You also saw how to filter the resulting rows using a `WHERE` clause that checked whether a given column was equal to a specific value. Going forward, you'll learn more sophisticated techniques using the `WHERE` clause as well as additional keywords for specifying your query parameters!
+In this lesson, you saw how to execute several kinds of SQL `SELECT` queries. First, there were examples of specifying the selection of particular columns, rather than always using `SELECT *` to select all columns. Then you saw some examples of how to use `CASE` to transform column values using conditional logic. Finally, we walked through how to use built-in SQL functions, particularly for string, numeric, and date/time fields.
