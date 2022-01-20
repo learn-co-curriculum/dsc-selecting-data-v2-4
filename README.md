@@ -849,6 +849,8 @@ SELECT firstName AS name
 
 
 
+Note: the `AS` keyword is technically optional when assigning an alias in SQL, so you may see examples that don't include it. In other words, you could just say `SELECT firstName name` and it would work the same as `SELECT firstName AS name`. However we recommend being more explicit and including the `AS`, so that it's clearer what your code is doing.
+
 ## Using SQL `CASE` Statements
 
 `CASE` statements appear very frequently in SQL technical interview questions. They are a type of conditional statement, similar to `if` statements in Python. Whereas Python uses the keywords `if`, `elif`, and `else`, SQL uses `CASE`, `WHEN`, `THEN`, `ELSE`, and `END`.
@@ -1505,7 +1507,68 @@ SELECT substr(firstName, 1, 1) || "." AS first_initial
 
 
 
-We can also combine multiple column values, not just string literals. For example:
+We can also combine multiple column values, not just string literals. For example, below we combine the first and last name:
+
+
+```python
+pd.read_sql("""
+SELECT firstName || lastName AS full_name
+  FROM employees;
+""", conn).head()
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>full_name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>DianeMurphy</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>MaryPatterson</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>JeffFirrelli</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>WilliamPatterson</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>GerardBondur</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+Hmm, that looks a bit odd. Let's concatenate those column values with a space (`" "`) string literal:
 
 
 ```python
@@ -1565,6 +1628,8 @@ SELECT firstName || " " || lastName AS full_name
 </div>
 
 
+
+That looks better!
 
 ### Built-in SQL Functions for Math Operations
 
