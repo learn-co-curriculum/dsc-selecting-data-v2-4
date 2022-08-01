@@ -7,6 +7,7 @@ As a data scientist, the SQL query you'll likely use most often is `SELECT`. Thi
 ## Objectives
 
 You will be able to:
+
 - Retrieve a subset of columns from a table
 - Create an alias in a SQL query
 - Use SQL CASE statements to transform selected columns
