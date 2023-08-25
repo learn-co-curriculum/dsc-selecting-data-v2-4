@@ -25,7 +25,7 @@ conn = sqlite3.connect('data.sqlite')
 
 The database that you've just connected to is the same database you have seen previously, containing data about orders, employees, etc. Here's an overview of the database:  
 
-<img src="images/Database-Schema.png">
+<img src="https://curriculum-content.s3.amazonaws.com/data-science/images/Database-Schema.png">
 
 For this first section we'll be focusing on the `employees` table.
 
